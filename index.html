@@ -858,6 +858,7 @@
   <div class="already-panel" id="alreadyArea">
     <div class="already-icon">📋</div>
     <div class="already-title">您已填寫過資料</div>
+    <div class="already-sub">以下為提交的內容</div>
     <div class="already-data" id="alreadyData"></div>
     <div class="already-contact">
       <strong>需要修改資料？</strong>
@@ -868,7 +869,7 @@
   <!-- Success area -->
   <div class="success-panel" id="successArea">
     <div class="success-icon">✅</div>
-    <div class="success-title">綁定成功！</div>
+    <div class="success-title">送出完成！</div>
     <div class="success-sub">您的資料已成功送出</div>
     <div class="success-data" id="successData"></div>
   </div>
@@ -1122,12 +1123,21 @@ function openConfirmModal() {
   const name  = document.getElementById('name').value.trim();
   const phone = formatPhone(document.getElementById('phone').value.trim());
 
-  const diseases = Array.from(document.querySelectorAll('input[name="disease"]:checked')).map(cb => {
+  const diseaseList = Array.from(document.querySelectorAll('input[name="disease"]:checked')).map(cb => {
     if (cb.id === 'diseaseJoint') return '關節問題: ' + document.getElementById('jointDetail').value.trim();
     if (cb.id === 'diseaseSpine') return '脊椎問題: ' + document.getElementById('spineDetail').value.trim();
-    if (cb.id === 'diseaseOther') return '其他: ' + document.getElementById('otherDetail').value.trim();
+    if (cb.id === 'diseaseOther') return '其他: '    + document.getElementById('otherDetail').value.trim();
     return cb.value;
-  }).join('、');
+  });
+
+  const diseasesHtml = diseaseList.length
+    ? diseaseList.map((d, i) =>
+        `<div style="display:flex;gap:8px;padding:4px 0;">
+           <span style="color:var(--green-dk);font-weight:700;flex-shrink:0;min-width:20px;">${i+1}.</span>
+           <span>${escHtml(d.trim())}</span>
+         </div>`
+      ).join('')
+    : '未填寫';
 
   document.getElementById('confirmRows').innerHTML = `
     <div class="confirm-row">
@@ -1140,10 +1150,10 @@ function openConfirmModal() {
       <span class="confirm-row-label">手機</span>
       <span class="confirm-row-value">${escHtml(phone)}</span>
     </div>
-    <div class="confirm-row">
+    <div class="confirm-row" style="align-items:flex-start;">
       <span class="confirm-row-icon">🏥</span>
       <span class="confirm-row-label">疾病史</span>
-      <span class="confirm-row-value">${escHtml(diseases || '未填寫')}</span>
+      <span class="confirm-row-value">${diseasesHtml}</span>
     </div>
   `;
 
@@ -1182,7 +1192,6 @@ document.getElementById('btnConfirm').addEventListener('click', async () => {
     if (cb.id === 'diseaseOther') return '其他: '    + (document.getElementById('otherDetail').value.trim() || '');
     return cb.value;
   }).join('、');
-
   const payload = {
     action:            'submit',
     name:              document.getElementById('name').value.trim(),
