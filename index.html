@@ -858,7 +858,6 @@
   <div class="already-panel" id="alreadyArea">
     <div class="already-icon">📋</div>
     <div class="already-title">您已填寫過資料</div>
-    <div class="already-sub">如需調整請聯繫官方 LINE</div>
     <div class="already-data" id="alreadyData"></div>
     <div class="already-contact">
       <strong>需要修改資料？</strong>
@@ -981,9 +980,18 @@ async function checkExistingData(lineUserId) {
       body: JSON.stringify({ action: 'check', line_user_id: lineUserId }),
     });
     if (!res.ok) return;
-    const result = await res.json();
 
-    if (result && result.found) {
+    // 安全解析，避免 Make 回傳非標準 JSON 時炸掉
+    const text = await res.text();
+    let result;
+    try {
+      result = JSON.parse(text);
+    } catch (e) {
+      console.warn('Make 回傳非 JSON，視為尚未填寫:', text);
+      return;
+    }
+
+    if (result && result.found === true) {
       showAlreadyPanel(result);
     }
   } catch (err) {
@@ -998,16 +1006,30 @@ function showAlreadyPanel(data) {
   const rows = [
     ['姓名',     data.name     || '—'],
     ['手機',     data.phone    || '—'],
-    ['疾病史',   data.diseases || '—'],
     ['LINE 暱稱', data.line_display_name || '—'],
   ];
 
-  document.getElementById('alreadyData').innerHTML = rows.map(([label, val]) => `
-    <div class="already-row">
-      <span class="already-row-label">${escHtml(label)}</span>
-      <span class="already-row-value">${escHtml(String(val))}</span>
-    </div>
-  `).join('');
+  // 疾病史單獨處理，格式化成編號列表
+  const diseasesHtml = data.diseases
+    ? data.diseases.split('、').map((d, i) =>
+        `<div style="display:flex;gap:8px;padding:4px 0;">
+           <span style="color:var(--green-dk);font-weight:700;flex-shrink:0;min-width:20px;">${i+1}.</span>
+           <span>${escHtml(d.trim())}</span>
+         </div>`
+      ).join('')
+    : '—';
+
+  document.getElementById('alreadyData').innerHTML =
+    rows.map(([label, val]) => `
+      <div class="already-row">
+        <span class="already-row-label">${escHtml(label)}</span>
+        <span class="already-row-value">${escHtml(String(val))}</span>
+      </div>
+    `).join('') +
+    `<div class="already-row" style="align-items:flex-start;">
+       <span class="already-row-label">疾病史</span>
+       <span class="already-row-value">${diseasesHtml}</span>
+     </div>`;
 
   const panel = document.getElementById('alreadyArea');
   panel.style.display = 'block';
