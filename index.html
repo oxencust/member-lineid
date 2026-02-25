@@ -1,0 +1,1288 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>衡點健康 — 會員資料</title>
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;600&family=DM+Serif+Display:ital@0;1&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --white:      #ffffff;
+    --gray:       #808080;
+    --green:      #7ac19a;
+    --green-lt:   #e2ede6;
+    --green-dk:   #5f846f;
+    --pink:       #f2ac98;
+    --pink-lt:    #faece8;
+    --pink-dk:    #c67566;
+    --yellow:     #ffe08b;
+    --yellow-lt:  #fcf4e3;
+    --yellow-dk:  #ba9e60;
+    --blue:       #9fcccc;
+    --blue-lt:    #daedec;
+    --blue-dk:    #66888e;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    min-height: 100vh;
+    background: var(--green-lt);
+    font-family: 'Noto Sans TC', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* Decorative blobs */
+  body::before, body::after {
+    content: '';
+    position: fixed;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 0;
+  }
+  body::before {
+    width: 480px; height: 480px;
+    background: radial-gradient(circle, rgba(122,193,154,0.25) 0%, transparent 70%);
+    top: -120px; right: -120px;
+  }
+  body::after {
+    width: 380px; height: 380px;
+    background: radial-gradient(circle, rgba(242,172,152,0.18) 0%, transparent 70%);
+    bottom: -100px; left: -80px;
+  }
+
+  .card {
+    background: var(--white);
+    border-radius: 28px;
+    width: 100%;
+    max-width: 460px;
+    padding: 48px 40px 44px;
+    box-shadow:
+      0 4px 24px rgba(95,132,111,0.10),
+      0 1px 4px rgba(95,132,111,0.06);
+    position: relative;
+    z-index: 1;
+    animation: slideUp 0.55s cubic-bezier(.22,.68,0,1.2) both;
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(32px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Top accent bar */
+  .card-accent {
+    position: absolute;
+    top: 0; left: 40px; right: 40px;
+    height: 4px;
+    background: linear-gradient(90deg, var(--green) 0%, var(--blue) 50%, var(--pink) 100%);
+    border-radius: 0 0 4px 4px;
+  }
+
+  .logo-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+
+  .logo-mark {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--green) 0%, var(--green-dk) 100%);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    box-shadow: 0 2px 8px rgba(95,132,111,0.28);
+  }
+
+  .logo-text {
+    font-family: 'Noto Serif TC', serif;
+    font-weight: 600;
+    font-size: 17px;
+    color: var(--green-dk);
+    letter-spacing: 2px;
+  }
+
+  .card-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px;
+    color: #2d3e35;
+    line-height: 1.2;
+    margin-bottom: 4px;
+    margin-top: 18px;
+  }
+
+  .card-sub {
+    font-size: 13px;
+    color: var(--gray);
+    line-height: 1.6;
+    margin-bottom: 32px;
+  }
+
+  /* Referrer pill */
+  .ref-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--green-lt);
+    border: 1px solid rgba(122,193,154,0.45);
+    border-radius: 20px;
+    padding: 5px 13px;
+    font-size: 12px;
+    color: var(--green-dk);
+    margin-bottom: 28px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+  }
+  .ref-pill .dot {
+    width: 7px; height: 7px;
+    background: var(--green);
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+    animation: fadeIn 0.5s ease both;
+  }
+  .form-group:nth-child(1) { animation-delay: 0.1s; }
+  .form-group:nth-child(2) { animation-delay: 0.18s; }
+  .form-group:nth-child(3) { animation-delay: 0.26s; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  label {
+    display: block;
+    font-size: 12.5px;
+    font-weight: 500;
+    color: #4a5c52;
+    margin-bottom: 7px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  label .req {
+    color: var(--pink-dk);
+    margin-left: 2px;
+  }
+
+  .input-wrap {
+    position: relative;
+  }
+
+  .input-icon {
+    position: absolute;
+    left: 14px; top: 50%;
+    transform: translateY(-50%);
+    font-size: 16px;
+    pointer-events: none;
+    opacity: 0.65;
+  }
+
+  input[type="text"],
+  input[type="tel"] {
+    width: 100%;
+    padding: 13px 16px 13px 42px;
+    border: 1.5px solid #d8e7df;
+    border-radius: 12px;
+    font-size: 15px;
+    font-family: 'Noto Sans TC', sans-serif;
+    color: #2d3e35;
+    background: #fafcfb;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  }
+
+  input[type="text"]:focus,
+  input[type="tel"]:focus {
+    border-color: var(--green);
+    background: var(--white);
+    box-shadow: 0 0 0 3px rgba(122,193,154,0.18);
+  }
+
+  input[type="text"]::placeholder,
+  input[type="tel"]::placeholder {
+    color: #b5c9bf;
+  }
+
+  input.error {
+    border-color: var(--pink-dk);
+    box-shadow: 0 0 0 3px rgba(198,117,102,0.12);
+  }
+
+  .error-msg {
+    font-size: 11.5px;
+    color: var(--pink-dk);
+    margin-top: 5px;
+    padding-left: 4px;
+    display: none;
+  }
+  .error-msg.show { display: block; }
+
+  /* LINE hint */
+  .line-hint {
+    font-size: 12px;
+    color: var(--blue-dk);
+    margin-top: 6px;
+    padding-left: 4px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #d8e7df 30%, #d8e7df 70%, transparent);
+    margin: 28px 0;
+  }
+
+  .btn-submit {
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(135deg, var(--green) 0%, var(--green-dk) 100%);
+    color: var(--white);
+    border: none;
+    border-radius: 14px;
+    font-size: 15.5px;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-weight: 500;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.2s, filter 0.2s;
+    box-shadow: 0 4px 16px rgba(95,132,111,0.35);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-submit::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .btn-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 7px 22px rgba(95,132,111,0.40);
+  }
+
+  .btn-submit:active {
+    transform: translateY(0);
+    filter: brightness(0.95);
+  }
+
+  .btn-submit:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .btn-inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  /* ── Confirmation Modal ── */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(30,46,38,0.55);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 100;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+  .modal-overlay.show {
+    opacity: 1;
+    pointer-events: all;
+  }
+  .modal-sheet {
+    background: var(--white);
+    border-radius: 24px 24px 0 0;
+    width: 100%;
+    max-width: 480px;
+    padding: 28px 28px 40px;
+    transform: translateY(100%);
+    transition: transform 0.35s cubic-bezier(.22,.68,0,1.1);
+    box-shadow: 0 -8px 40px rgba(0,0,0,0.12);
+  }
+  .modal-overlay.show .modal-sheet {
+    transform: translateY(0);
+  }
+  .modal-handle {
+    width: 36px; height: 4px;
+    background: #d8e7df;
+    border-radius: 2px;
+    margin: 0 auto 22px;
+  }
+  .modal-title {
+    font-size: 17px; font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 4px;
+    text-align: center;
+  }
+  .modal-sub {
+    font-size: 12.5px; color: var(--gray);
+    text-align: center; margin-bottom: 22px;
+  }
+  .confirm-rows {
+    background: var(--green-lt);
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 22px;
+  }
+  .confirm-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 13px 16px;
+    border-bottom: 1px solid rgba(122,193,154,0.3);
+  }
+  .confirm-row:last-child { border-bottom: none; }
+  .confirm-row-icon { font-size: 17px; width: 24px; text-align: center; flex-shrink: 0; }
+  .confirm-row-label {
+    font-size: 11.5px; color: var(--green-dk); font-weight: 600;
+    width: 72px; flex-shrink: 0; letter-spacing: 0.3px;
+  }
+  .confirm-row-value {
+    font-size: 14px; color: var(--ink); font-weight: 500;
+    flex: 1; word-break: break-all;
+  }
+  .confirm-avatar {
+    width: 30px; height: 30px; border-radius: 50%;
+    object-fit: cover; border: 2px solid var(--green); flex-shrink: 0;
+  }
+  .modal-btns { display: flex; gap: 10px; }
+  .btn-back {
+    flex: 1; padding: 13px;
+    background: var(--green-lt); color: var(--green-dk);
+    border: 1.5px solid rgba(122,193,154,0.5);
+    border-radius: 12px; font-size: 14.5px;
+    font-family: 'Noto Sans TC', sans-serif; font-weight: 500;
+    cursor: pointer; transition: background 0.15s;
+  }
+  .btn-back:hover { background: #cee5d8; }
+  .btn-confirm {
+    flex: 2; padding: 13px;
+    background: linear-gradient(135deg, var(--green) 0%, var(--green-dk) 100%);
+    color: var(--white); border: none; border-radius: 12px;
+    font-size: 14.5px; font-family: 'Noto Sans TC', sans-serif;
+    font-weight: 500; letter-spacing: 1.5px; cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.2s;
+    box-shadow: 0 3px 12px rgba(95,132,111,0.35);
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .btn-confirm:hover { transform: translateY(-1px); box-shadow: 0 5px 18px rgba(95,132,111,0.4); }
+  .btn-confirm:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
+
+  /* Success state */
+  .success-panel {
+    display: none;
+    text-align: center;
+    padding: 20px 0;
+    animation: slideUp 0.5s cubic-bezier(.22,.68,0,1.2) both;
+  }
+
+  .success-icon {
+    width: 72px; height: 72px;
+    background: linear-gradient(135deg, var(--green-lt), var(--green));
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 32px;
+    margin: 0 auto 20px;
+    box-shadow: 0 4px 20px rgba(122,193,154,0.35);
+  }
+
+  .success-title {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 22px;
+    color: var(--green-dk);
+    margin-bottom: 10px;
+    font-weight: 600;
+  }
+
+  .success-sub {
+    font-size: 14px;
+    color: var(--gray);
+    line-height: 1.7;
+  }
+
+  .success-data {
+    background: var(--green-lt);
+    border-radius: 14px;
+    padding: 16px 20px;
+    margin-top: 20px;
+    text-align: left;
+  }
+
+  .success-data-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    font-size: 13.5px;
+    border-bottom: 1px dashed rgba(122,193,154,0.4);
+  }
+  .success-data-row:last-child { border-bottom: none; }
+  .success-data-row span:first-child { color: var(--green-dk); font-weight: 500; }
+  .success-data-row span:last-child  { color: #2d3e35; }
+
+  /* Hidden debug panel */
+  .debug-panel {
+    position: fixed;
+    bottom: 16px; right: 16px;
+    background: rgba(45,62,53,0.92);
+    color: #7ac19a;
+    font-family: monospace;
+    font-size: 11px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    max-width: 280px;
+    z-index: 100;
+    display: none;
+    line-height: 1.7;
+    backdrop-filter: blur(6px);
+  }
+  .debug-panel.show { display: block; }
+  .debug-panel strong { color: #ffe08b; }
+
+  /* LINE status badge */
+  .line-status {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    background: var(--green-lt);
+    border: 1px solid rgba(122,193,154,0.4);
+    border-radius: 14px;
+    padding: 12px 16px;
+    margin-bottom: 4px;
+    font-size: 13.5px;
+    color: var(--green-dk);
+    min-height: 52px;
+    animation: fadeIn 0.4s ease both;
+  }
+  .line-status.error {
+    display: flex;
+    background: var(--pink-lt);
+    border-color: rgba(198,117,102,0.4);
+    color: var(--pink-dk);
+  }
+  .line-avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--green);
+    flex-shrink: 0;
+  }
+  .line-info { flex: 1; }
+  .line-display-name { font-weight: 500; color: #2d3e35; }
+  .line-uid { font-size: 11px; color: var(--gray); margin-top: 2px; font-family: monospace; }
+  .line-check { font-size: 18px; }
+
+  /* Loading spinner */
+  .spinner {
+    width: 18px; height: 18px;
+    border: 2.5px solid rgba(255,255,255,0.35);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: none;
+  }
+  .spinning .spinner { display: inline-block; }
+  .spinning .btn-label { display: none; }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--green-lt); }
+  ::-webkit-scrollbar-thumb { background: var(--green); border-radius: 3px; }
+
+  @media (max-width: 480px) {
+    .card { padding: 32px 20px 28px; border-radius: 20px; }
+    .card-title { font-size: 22px; }
+    .modal-sheet { padding: 24px 20px 32px; }
+  }
+
+  /* Tablet */
+  @media (min-width: 481px) and (max-width: 768px) {
+    .card { max-width: 500px; padding: 44px 36px 40px; }
+  }
+
+  /* Desktop — 置中卡片，加大內距與字體 */
+  @media (min-width: 769px) {
+    body { padding: 48px 24px; align-items: center; }
+    .card {
+      max-width: 520px;
+      padding: 56px 52px 52px;
+      border-radius: 32px;
+    }
+    .card-title { font-size: 30px; }
+    .logo-text  { font-size: 18px; }
+    input[type="text"],
+    input[type="tel"] { font-size: 16px; padding: 14px 18px 14px 46px; }
+    .btn-submit { font-size: 16px; padding: 16px; }
+    .modal-sheet {
+      /* 桌機改為置中彈窗，不貼底部 */
+      border-radius: 20px;
+      max-width: 420px;
+      margin-bottom: 0;
+      padding: 32px 32px 36px;
+    }
+    .modal-overlay {
+      align-items: center;
+    }
+    .modal-overlay.show .modal-sheet {
+      transform: translateY(0) scale(1);
+    }
+    /* 桌機進場動畫改為縮放 */
+    .modal-sheet {
+      transform: scale(0.92);
+      transition: transform 0.3s cubic-bezier(.22,.68,0,1.15), opacity 0.25s ease;
+      opacity: 0;
+    }
+    .modal-overlay.show .modal-sheet {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  /* ── Disease section ── */
+  .disease-section {
+    margin-top: 22px;
+    animation: fadeIn 0.5s ease both;
+    animation-delay: 0.26s;
+  }
+  .disease-section-label {
+    display: block;
+    font-size: 12.5px;
+    font-weight: 500;
+    color: #4a5c52;
+    margin-bottom: 7px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .disease-section-label .req { color: var(--pink-dk); margin-left: 2px; }
+  .disease-warn {
+    font-size: 12px;
+    color: var(--pink-dk);
+    line-height: 1.6;
+    margin-bottom: 12px;
+    padding: 10px 13px;
+    background: var(--pink-lt);
+    border-left: 3px solid var(--pink);
+    border-radius: 8px;
+  }
+  .disease-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .disease-item {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    background: #fafcfb;
+    border: 1.5px solid #d8e7df;
+    border-radius: 10px;
+    padding: 10px 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 13.5px;
+    color: #2d3e35;
+    min-height: 44px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .disease-item:active { transform: scale(0.97); }
+  .disease-item input[type="checkbox"] {
+    width: 17px; height: 17px;
+    accent-color: var(--green-dk);
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+  .disease-item.selected {
+    background: var(--green-lt);
+    border-color: var(--green);
+    color: var(--green-dk);
+    font-weight: 600;
+  }
+  .disease-item-full {
+    grid-column: 1 / -1;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+  }
+  .disease-item-full .disease-item-row {
+    display: flex; align-items: center; gap: 9px; width: 100%;
+  }
+  .disease-item-full input[type="text"] {
+    width: 100%;
+    margin-top: 8px;
+    padding: 9px 12px;
+    border: 1.5px solid #d8e7df;
+    border-radius: 8px;
+    font-size: 13px;
+    font-family: 'Noto Sans TC', sans-serif;
+    color: #2d3e35;
+    background: var(--white);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .disease-item-full input[type="text"]:focus {
+    border-color: var(--green);
+    box-shadow: 0 0 0 3px rgba(122,193,154,0.15);
+  }
+  .disease-agree {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 14px;
+    background: var(--pink-lt);
+    border: 1.5px solid rgba(242,172,152,0.6);
+    border-radius: 12px;
+    cursor: pointer;
+    margin-top: 12px;
+    font-size: 13px;
+    color: var(--green-dk);
+    line-height: 1.6;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .disease-agree input[type="checkbox"] {
+    width: 17px; height: 17px;
+    accent-color: var(--pink-dk);
+    flex-shrink: 0;
+    margin-top: 2px;
+    cursor: pointer;
+  }
+  .error-msg.disease-err { margin-top: 8px; }
+
+
+  /* ── Already submitted panel ── */
+  .already-panel {
+    display: none;
+    padding: 10px 0 20px;
+    animation: slideUp 0.5s cubic-bezier(.22,.68,0,1.2) both;
+  }
+  .already-icon {
+    width: 68px; height: 68px;
+    background: linear-gradient(135deg, var(--blue-lt), var(--blue));
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 30px;
+    margin: 0 auto 20px;
+    box-shadow: 0 4px 16px rgba(159,204,204,0.35);
+  }
+  .already-title {
+    font-size: 20px; font-weight: 700;
+    color: var(--ink); text-align: center; margin-bottom: 6px;
+  }
+  .already-sub {
+    font-size: 13px; color: var(--gray);
+    text-align: center; line-height: 1.7; margin-bottom: 24px;
+  }
+  .already-data {
+    background: var(--green-lt);
+    border: 1.5px solid rgba(122,193,154,0.4);
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+  .already-row {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(122,193,154,0.25);
+    font-size: 13.5px;
+  }
+  .already-row:last-child { border-bottom: none; }
+  .already-row-label {
+    color: var(--green-dk); font-weight: 600;
+    width: 72px; flex-shrink: 0; font-size: 12.5px; padding-top: 1px;
+  }
+  .already-row-value {
+    color: var(--ink); flex: 1; line-height: 1.6; word-break: break-word;
+  }
+  .already-contact {
+    background: var(--yellow-lt);
+    border: 1.5px solid rgba(255,224,139,0.7);
+    border-radius: 14px;
+    padding: 14px 16px;
+    font-size: 13px; color: #5a4a1a; line-height: 1.7;
+    text-align: center;
+  }
+  .already-contact strong { color: var(--yellow-dk); display: block; margin-bottom: 4px; font-size: 13.5px; }
+
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="card-accent"></div>
+
+  <div class="logo-wrap">
+    <div class="logo-mark">🌿</div>
+    <span class="logo-text">衡點健康</span>
+  </div>
+
+  <!-- Referrer pill (filled by JS) -->
+  <div class="ref-pill" id="refPill" style="display:none;">
+    <span class="dot"></span>
+    <span id="refText"></span>
+  </div>
+
+  <!-- Form area -->
+  <div id="formArea">
+    <h1 class="card-title">會員資料</h1>
+    <p class="card-sub">填寫以下資料，讓我們為您提供更個人化的服務體驗 ✨</p>
+
+    <form id="bindForm" novalidate>
+
+      <div class="form-group">
+        <label>姓名 <span class="req">*</span></label>
+        <div class="input-wrap">
+          <span class="input-icon">👤</span>
+          <input type="text" id="name" placeholder="請輸入您的姓名" autocomplete="name">
+        </div>
+        <div class="error-msg" id="nameErr">請填寫姓名</div>
+      </div>
+
+      <div class="form-group">
+        <label>手機號碼 <span class="req">*</span></label>
+        <div class="input-wrap">
+          <span class="input-icon">📱</span>
+          <input type="tel" id="phone" placeholder="09xxxxxxxx" autocomplete="tel" maxlength="13">
+        </div>
+        <div class="error-msg" id="phoneErr">請填寫有效的手機號碼（09 開頭 10 碼）</div>
+      </div>
+
+
+      <!-- 疾病史 -->
+      <div class="disease-section">
+        <span class="disease-section-label">疾病史 <span class="req">*</span></span>
+        <div class="disease-warn">請更新您的疾病史，確保場館掌握最新健康狀況。</div>
+
+        <div class="disease-grid">
+          <label class="disease-item"><input type="checkbox" name="disease" value="心臟病"><span>心臟病</span></label>
+          <label class="disease-item"><input type="checkbox" name="disease" value="心絞痛"><span>心絞痛</span></label>
+          <label class="disease-item"><input type="checkbox" name="disease" value="糖尿病"><span>糖尿病</span></label>
+          <label class="disease-item"><input type="checkbox" name="disease" value="疝氣/脫腸"><span>疝氣/脫腸</span></label>
+          <label class="disease-item"><input type="checkbox" name="disease" value="高血壓"><span>高血壓</span></label>
+          <label class="disease-item"><input type="checkbox" name="disease" value="氣喘"><span>氣喘</span></label>
+          <label class="disease-item"><input type="checkbox" name="disease" value="貧血"><span>貧血</span></label>
+          <label class="disease-item"><input type="checkbox" name="disease" value="癲癇"><span>癲癇</span></label>
+          <label class="disease-item"><input type="checkbox" name="disease" value="甲狀腺問題"><span>甲狀腺問題</span></label>
+          <label class="disease-item"><input type="checkbox" name="disease" value="靜脈瘤"><span>靜脈瘤</span></label>
+          <label class="disease-item"><input type="checkbox" name="disease" value="惡性腫瘤"><span>惡性腫瘤</span></label>
+          <label class="disease-item"><input type="checkbox" name="disease" value="椎間盤突出"><span>椎間盤突出</span></label>
+          <label class="disease-item"><input type="checkbox" name="disease" value="習慣性脫臼"><span>習慣性脫臼</span></label>
+          <label class="disease-item"><input type="checkbox" name="disease" value="脊椎滑脫"><span>脊椎滑脫</span></label>
+          <label class="disease-item"><input type="checkbox" name="disease" value="骨質疏鬆症"><span>骨質疏鬆症</span></label>
+          <label class="disease-item"><input type="checkbox" name="disease" value="痛風/風濕"><span>痛風/風濕</span></label>
+
+          <!-- 關節問題（含詳細欄） -->
+          <label class="disease-item disease-item-full" id="jointLabel">
+            <div class="disease-item-row">
+              <input type="checkbox" name="disease" value="關節問題" id="diseaseJoint">
+              <span>關節問題</span>
+            </div>
+            <input type="text" id="jointDetail" placeholder="例如：右膝關節疼痛3個月" style="display:none;">
+          </label>
+
+          <!-- 脊椎問題（含詳細欄） -->
+          <label class="disease-item disease-item-full" id="spineLabel">
+            <div class="disease-item-row">
+              <input type="checkbox" name="disease" value="脊椎問題" id="diseaseSpine">
+              <span>脊椎問題</span>
+            </div>
+            <input type="text" id="spineDetail" placeholder="例如：腰椎輕微突出" style="display:none;">
+          </label>
+
+          <!-- 其他（含詳細欄） -->
+          <label class="disease-item disease-item-full" id="otherDiseaseLabel">
+            <div class="disease-item-row">
+              <input type="checkbox" name="disease" value="其他" id="diseaseOther">
+              <span>其他</span>
+            </div>
+            <input type="text" id="otherDetail" placeholder="例如：偏頭痛、鼻炎等" style="display:none;">
+          </label>
+
+          <!-- 無 -->
+          <label class="disease-item" id="noDiseaseLabel">
+            <input type="checkbox" name="disease" value="無" id="diseaseNone">
+            <span>無</span>
+          </label>
+        </div>
+
+        <!-- 同意聲明 -->
+        <label class="disease-agree">
+          <input type="checkbox" id="diseaseAgree">
+          <span>同意以上內容均為屬實填寫，<br>如後續有發生以上狀況需優先告知教練</span>
+        </label>
+        <div class="error-msg disease-err" id="diseaseErr" style="display:none;">請至少選擇一項並勾選同意聲明</div>
+      </div>
+
+      <!-- LINE 資訊由 LIFF 自動取得，不顯示欄位 -->
+      <div class="line-status" id="lineStatus"></div>
+
+      <div class="divider"></div>
+
+      <button type="submit" class="btn-submit" id="submitBtn">
+        <div class="btn-inner">
+          <div class="spinner"></div>
+          <span class="btn-label">確認送出</span>
+        </div>
+      </button>
+
+    </form>
+  </div>
+
+
+  <!-- Already submitted area -->
+  <div class="already-panel" id="alreadyArea">
+    <div class="already-icon">📋</div>
+    <div class="already-title">您已填寫過資料</div>
+    <div class="already-sub">以下是您上次提交的內容<br>如需調整請聯繫官方 LINE</div>
+    <div class="already-data" id="alreadyData"></div>
+    <div class="already-contact">
+      <strong>需要修改資料？</strong>
+      請透過官方 LINE 聯繫我們，<br>我們將協助您更新資料 💬
+    </div>
+  </div>
+
+  <!-- Success area -->
+  <div class="success-panel" id="successArea">
+    <div class="success-icon">✅</div>
+    <div class="success-title">綁定成功！</div>
+    <div class="success-sub">您的資料已成功送出<br>衡點健康團隊將盡快與您確認 💪</div>
+    <div class="success-data" id="successData"></div>
+  </div>
+</div>
+
+<!-- Dev debug panel (show with ?debug=1) -->
+<div class="debug-panel" id="debugPanel">
+  <strong>🔧 URL 參數偵測</strong><br>
+  <div id="debugContent"></div>
+</div>
+
+
+<!-- ── Confirmation Modal ── -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal-sheet" id="confirmSheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">確認送出資料</div>
+    <div class="modal-sub">請確認以下資料無誤後送出</div>
+    <div class="confirm-rows" id="confirmRows"></div>
+    <div class="modal-btns">
+      <button class="btn-back" id="btnBack">← 返回修改</button>
+      <button class="btn-confirm" id="btnConfirm">
+        <div class="spinner" id="confirmSpinner"></div>
+        <span id="confirmLabel">確認送出</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── 設定區 ────────────────────────────────────────────────────────────────
+const LIFF_ID      = 'YOUR_LIFF_ID';                        // ← 填入你的 LIFF ID
+const WEBHOOK_URL  = 'https://hook.eu2.make.com/YOUR_WEBHOOK_ID'; // ← 填入 Make Webhook
+
+// ─── 1. Parse URL parameters ───────────────────────────────────────────────
+const params  = new URLSearchParams(window.location.search);
+const refBy   = params.get('ref')   || '';
+const refName = params.get('name')  || '';
+const source  = params.get('src')   || '';
+const cid     = params.get('cid')   || '';
+const debug   = params.get('debug') === '1';
+
+// LINE profile (填入後才可送出)
+let lineProfile = null;
+
+// ─── 2. Show referrer pill ─────────────────────────────────────────────────
+if (refName || refBy) {
+  const pill = document.getElementById('refPill');
+  pill.style.display = 'inline-flex';
+  document.getElementById('refText').textContent = refName
+    ? `由 ${refName} 邀請填寫`
+    : `邀請碼：${refBy}`;
+}
+
+// ─── 3. Debug panel ────────────────────────────────────────────────────────
+if (debug) {
+  document.getElementById('debugPanel').classList.add('show');
+}
+
+function updateDebug(extra = {}) {
+  if (!debug) return;
+  const all = { ref: refBy, ref_name: refName, src: source, cid, ...extra };
+  document.getElementById('debugContent').innerHTML =
+    Object.entries(all).map(([k,v]) =>
+      `${k}: <strong>${v || '—'}</strong>`
+    ).join('<br>');
+}
+updateDebug();
+
+// ─── 4. LIFF Init ──────────────────────────────────────────────────────────
+const statusEl = document.getElementById('lineStatus');
+
+function setStatus(html, type = '') {
+  statusEl.className = 'line-status' + (type ? ' ' + type : '');
+  statusEl.innerHTML = html;
+}
+
+setStatus('', ''); // 背景靜默驗證，不顯示任何狀態
+
+liff.init({ liffId: LIFF_ID })
+  .then(async () => {
+    if (!liff.isLoggedIn()) {
+      liff.login({ redirectUri: location.href });
+      return;
+    }
+    const profile = await liff.getProfile();
+    lineProfile = profile;
+
+    updateDebug({
+      lineUserId: profile.userId,
+      displayName: profile.displayName,
+    });
+
+    // ── 檢查是否已有資料 ──────────────────────────────
+    await checkExistingData(profile.userId);
+  })
+  .catch(err => {
+    console.error('LIFF init failed:', err);
+    setStatus('⚠️ LINE 驗證失敗，請透過 LINE 開啟此頁面', 'error');
+    document.getElementById('submitBtn').disabled = true;
+  });
+
+// ─── 檢查暫存表是否已有此 LINE ID ──────────────────────────────────────────
+async function checkExistingData(lineUserId) {
+  try {
+    const res = await fetch(WEBHOOK_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'check', line_user_id: lineUserId }),
+    });
+    if (!res.ok) return;
+    const result = await res.json();
+
+    if (result && result.found) {
+      showAlreadyPanel(result);
+    }
+  } catch (err) {
+    console.warn('check 失敗，繼續顯示表單:', err);
+  }
+}
+
+// ─── 顯示「已填寫」畫面 ────────────────────────────────────────────────────
+function showAlreadyPanel(data) {
+  document.getElementById('formArea').style.display = 'none';
+
+  const rows = [
+    ['姓名',     data.name     || '—'],
+    ['手機',     data.phone    || '—'],
+    ['疾病史',   data.diseases || '—'],
+    ['LINE 暱稱', data.line_display_name || '—'],
+    ['提交時間', data.submitted_at || '—'],
+  ];
+
+  document.getElementById('alreadyData').innerHTML = rows.map(([label, val]) => `
+    <div class="already-row">
+      <span class="already-row-label">${escHtml(label)}</span>
+      <span class="already-row-value">${escHtml(String(val))}</span>
+    </div>
+  `).join('');
+
+  const panel = document.getElementById('alreadyArea');
+  panel.style.display = 'block';
+}
+
+// ─── 5. Validation ─────────────────────────────────────────────────────────
+function showError(inputId, errId, show) {
+  document.getElementById(inputId).classList.toggle('error', show);
+  document.getElementById(errId).classList.toggle('show', show);
+}
+
+function validateForm() {
+  let ok = true;
+  const name  = document.getElementById('name').value.trim();
+  const phone = document.getElementById('phone').value.trim();
+
+  if (!name) { showError('name','nameErr',true);  ok = false; }
+  else         showError('name','nameErr',false);
+
+  if (!phone || !/^09\d{2}-\d{3}-\d{3}$/.test(phone)) { showError('phone','phoneErr',true);  ok = false; }
+  else                                       showError('phone','phoneErr',false);
+
+  // Disease validation
+  var checkedDiseases = document.querySelectorAll('input[name="disease"]:checked');
+  var diseaseAgree    = document.getElementById('diseaseAgree');
+  var diseaseErr      = document.getElementById('diseaseErr');
+  var diseaseOk = checkedDiseases.length > 0 && diseaseAgree.checked;
+
+  // Check detail fields
+  if (document.getElementById('diseaseJoint').checked && !document.getElementById('jointDetail').value.trim()) diseaseOk = false;
+  if (document.getElementById('diseaseSpine').checked && !document.getElementById('spineDetail').value.trim()) diseaseOk = false;
+  if (document.getElementById('diseaseOther').checked && !document.getElementById('otherDetail').value.trim())  diseaseOk = false;
+
+  if (!diseaseOk) {
+    diseaseErr.style.display = 'block';
+    if (checkedDiseases.length === 0)       diseaseErr.textContent = '請至少選擇一項疾病史';
+    else if (!diseaseAgree.checked)          diseaseErr.textContent = '請勾選同意聲明';
+    else                                     diseaseErr.textContent = '請填寫詳細說明';
+    ok = false;
+  } else {
+    diseaseErr.style.display = 'none';
+  }
+
+  return ok;
+}
+
+['name'].forEach(id => {
+  document.getElementById(id).addEventListener('input', validateForm);
+});
+
+// ── 手機號碼：只允許數字、自動加破折號、限制 10 碼 ──────────────────────
+document.getElementById('phone').addEventListener('input', function () {
+  const cursor   = this.selectionStart;
+  const before   = this.value;
+
+  // 1. 只取數字，最多 10 碼
+  const digits = before.replace(/\D/g, '').slice(0, 10);
+
+  // 2. 加破折號
+  let formatted = digits;
+  if (digits.length > 7)      formatted = `${digits.slice(0,4)}-${digits.slice(4,7)}-${digits.slice(7)}`;
+  else if (digits.length > 4) formatted = `${digits.slice(0,4)}-${digits.slice(4)}`;
+
+  // 3. 更新輸入框（避免不必要的重繪）
+  if (this.value !== formatted) {
+    // 補償游標位移（破折號插入時往後挪一格）
+    const added = formatted.length - before.length;
+    this.value = formatted;
+    const newCursor = Math.max(0, cursor + added);
+    this.setSelectionRange(newCursor, newCursor);
+  }
+
+  validateForm();
+});
+
+// ─── 6. Submit ─────────────────────────────────────────────────────────────
+// ─── 6. Form submit → 開啟確認 Modal ─────────────────────────────────────
+document.getElementById('bindForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  if (!validateForm()) return;
+  if (!lineProfile) {
+    setStatus('⚠️ 尚未取得 LINE 資訊，請稍候再試', 'error');
+    return;
+  }
+  openConfirmModal();
+});
+
+// ─── 確認 Modal 邏輯 ───────────────────────────────────────────────────────
+function openConfirmModal() {
+  const name  = document.getElementById('name').value.trim();
+  const phone = formatPhone(document.getElementById('phone').value.trim());
+
+  const diseases = Array.from(document.querySelectorAll('input[name="disease"]:checked')).map(cb => {
+    if (cb.id === 'diseaseJoint') return '關節問題: ' + document.getElementById('jointDetail').value.trim();
+    if (cb.id === 'diseaseSpine') return '脊椎問題: ' + document.getElementById('spineDetail').value.trim();
+    if (cb.id === 'diseaseOther') return '其他: ' + document.getElementById('otherDetail').value.trim();
+    return cb.value;
+  }).join('、');
+
+  document.getElementById('confirmRows').innerHTML = `
+    <div class="confirm-row">
+      <span class="confirm-row-icon">👤</span>
+      <span class="confirm-row-label">姓名</span>
+      <span class="confirm-row-value">${escHtml(name)}</span>
+    </div>
+    <div class="confirm-row">
+      <span class="confirm-row-icon">📱</span>
+      <span class="confirm-row-label">手機</span>
+      <span class="confirm-row-value">${escHtml(phone)}</span>
+    </div>
+    <div class="confirm-row">
+      <span class="confirm-row-icon">🏥</span>
+      <span class="confirm-row-label">疾病史</span>
+      <span class="confirm-row-value">${escHtml(diseases || '未填寫')}</span>
+    </div>
+  `;
+
+  // 開啟 modal
+  const overlay = document.getElementById('confirmModal');
+  overlay.classList.add('show');
+}
+
+// 返回修改
+document.getElementById('btnBack').addEventListener('click', () => {
+  document.getElementById('confirmModal').classList.remove('show');
+});
+
+// 點背景關閉
+document.getElementById('confirmModal').addEventListener('click', (e) => {
+  if (e.target === document.getElementById('confirmModal')) {
+    document.getElementById('confirmModal').classList.remove('show');
+  }
+});
+
+// 確認送出
+document.getElementById('btnConfirm').addEventListener('click', async () => {
+  const confirmBtn     = document.getElementById('btnConfirm');
+  const confirmSpinner = document.getElementById('confirmSpinner');
+  const confirmLabel   = document.getElementById('confirmLabel');
+  confirmBtn.disabled  = true;
+  confirmSpinner.style.display = 'inline-block';
+  confirmLabel.textContent = '送出中…';
+
+  const rawPhone = document.getElementById('phone').value.trim();
+
+  // 收集疾病史
+  const diseasesPayload = Array.from(document.querySelectorAll('input[name="disease"]:checked')).map(cb => {
+    if (cb.id === 'diseaseJoint') return '關節問題: ' + (document.getElementById('jointDetail').value.trim() || '');
+    if (cb.id === 'diseaseSpine') return '脊椎問題: ' + (document.getElementById('spineDetail').value.trim() || '');
+    if (cb.id === 'diseaseOther') return '其他: '    + (document.getElementById('otherDetail').value.trim() || '');
+    return cb.value;
+  }).join('、');
+
+  const payload = {
+    name:              document.getElementById('name').value.trim(),
+    phone:             formatPhone(rawPhone),
+    diseases:          diseasesPayload,
+    line_user_id:      lineProfile.userId,
+    line_display_name: lineProfile.displayName,
+    line_picture_url:  lineProfile.pictureUrl || '',
+    ref_by:            refBy,
+    ref_name:          refName,
+    source:            source,
+    cid:               cid,
+    submitted_at:      new Date().toISOString(),
+  };
+
+  console.log('📤 送出資料：', payload);
+
+  try {
+    await fetch(WEBHOOK_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+  } catch (err) {
+    console.warn('Webhook 失敗：', err);
+  }
+
+  document.getElementById('confirmModal').classList.remove('show');
+  showSuccess(payload);
+});
+
+// ─── 7. Success screen ────────────────────────────────────────────────────
+function showSuccess(data) {
+  document.getElementById('formArea').style.display = 'none';
+  const sa = document.getElementById('successArea');
+  sa.style.display = 'block';
+
+  const avatarHtml = data.line_picture_url
+    ? `<img src="${data.line_picture_url}" class="line-avatar" style="margin-bottom:12px;" alt="">`
+    : '';
+
+  const rows = [
+    ['姓名',  data.name],
+    ['手機',  data.phone],
+    ['LINE 名稱', data.line_display_name],
+    ...(data.ref_name ? [['邀請人', data.ref_name]] : []),
+    ...(data.ref_by   ? [['邀請碼', data.ref_by]]   : []),
+    ...(data.source   ? [['來源',   data.source]]    : []),
+  ];
+
+  document.getElementById('successData').innerHTML =
+    (avatarHtml ? `<div style="text-align:center">${avatarHtml}</div>` : '') +
+    rows.map(([k,v]) =>
+      `<div class="success-data-row"><span>${k}</span><span>${escHtml(String(v))}</span></div>`
+    ).join('');
+}
+
+
+// ─── Disease checkboxes ───────────────────────────────────────────────────
+(function initDiseases() {
+  // 關節問題 → 展開詳細欄
+  document.getElementById('diseaseJoint').addEventListener('change', function() {
+    var inp = document.getElementById('jointDetail');
+    inp.style.display = this.checked ? 'block' : 'none';
+    if (!this.checked) inp.value = '';
+  });
+
+  // 脊椎問題 → 展開詳細欄
+  document.getElementById('diseaseSpine').addEventListener('change', function() {
+    var inp = document.getElementById('spineDetail');
+    inp.style.display = this.checked ? 'block' : 'none';
+    if (!this.checked) inp.value = '';
+  });
+
+  // 其他 → 展開詳細欄
+  document.getElementById('diseaseOther').addEventListener('change', function() {
+    var inp = document.getElementById('otherDetail');
+    inp.style.display = this.checked ? 'block' : 'none';
+    if (!this.checked) inp.value = '';
+  });
+
+  // "無" → 清除所有其他選項
+  document.getElementById('diseaseNone').addEventListener('change', function() {
+    if (!this.checked) return;
+    document.querySelectorAll('input[name="disease"]').forEach(function(c) {
+      if (c.id === 'diseaseNone') return;
+      c.checked = false;
+      var lbl = c.closest('.disease-item');
+      if (lbl) lbl.classList.remove('selected');
+    });
+    ['jointDetail','spineDetail','otherDetail'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) { el.style.display = 'none'; el.value = ''; }
+    });
+  });
+
+  // 其他選項 → 取消「無」
+  document.querySelectorAll('input[name="disease"]').forEach(function(cb) {
+    if (cb.id === 'diseaseNone') return;
+    cb.addEventListener('change', function() {
+      if (this.checked) {
+        document.getElementById('diseaseNone').checked = false;
+        var noLbl = document.getElementById('noDiseaseLabel');
+        if (noLbl) noLbl.classList.remove('selected');
+      }
+    });
+  });
+})();
+
+// ─── Util ──────────────────────────────────────────────────────────────────
+function escHtml(str) {
+  return str.replace(/[&<>"']/g, c =>
+    ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// 電話格式化：0912345678 → 0912-345-678（符合總表 K 欄格式）
+function formatPhone(raw) {
+  const digits = raw.replace(/\D/g, '');        // 只取數字
+  if (digits.length !== 10) return raw;          // 不足 10 碼不轉
+  return `${digits.slice(0,4)}-${digits.slice(4,7)}-${digits.slice(7,10)}`;
+}
+</script>
+
+</body>
+</html>
