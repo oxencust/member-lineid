@@ -729,6 +729,33 @@
   }
   .already-contact strong { color: var(--yellow-dk); display: block; margin-bottom: 4px; font-size: 13.5px; }
 
+
+  /* ── Birthday selects ── */
+  .birthday-group {
+    display: flex;
+    gap: 8px;
+  }
+  .birthday-group select {
+    flex: 1;
+    padding: 13px 10px;
+    border: 1.5px solid #d0ddd6;
+    border-radius: 12px;
+    font-size: 14px;
+    font-family: 'Noto Sans TC', sans-serif;
+    color: var(--ink);
+    background: var(--white);
+    appearance: none;
+    -webkit-appearance: none;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+  }
+  .birthday-group select:focus {
+    border-color: var(--green);
+    box-shadow: 0 0 0 3px rgba(122,193,154,0.15);
+  }
+
 </style>
 </head>
 <body>
@@ -737,8 +764,10 @@
   <div class="card-accent"></div>
 
   <div class="logo-wrap">
-    <img src="https://ik.imagekit.io/hanhealth/assets/logo.png" alt="衡點健康" style="height:40px; width:auto; object-fit:contain;">
-    <span class="logo-text">衡點健康</span>
+    <div class="logo-wrap">
+  <img src="https://ik.imagekit.io/hanhealth/assets/logo.png?updatedAt=1772155101138" alt="衡點健康" style="height:40px; width:auto; object-fit:contain;">
+  <span class="logo-text">衡點健康</span>
+</div>
   </div>
 
   <!-- Referrer pill (filled by JS) -->
@@ -772,6 +801,15 @@
         <div class="error-msg" id="phoneErr">請填寫有效的手機號碼（09 開頭 10 碼）</div>
       </div>
 
+      <div class="form-group">
+        <label>生日 <span class="req">*</span></label>
+        <div class="birthday-group">
+          <select id="birthdayYear"><option value="">年</option></select>
+          <select id="birthdayMonth"><option value="">月</option></select>
+          <select id="birthdayDay"><option value="">日</option></select>
+        </div>
+        <div class="error-msg" id="birthdayErr">請選擇完整生日</div>
+      </div>
 
       <!-- 疾病史 -->
       <div class="disease-section">
@@ -858,7 +896,7 @@
   <div class="already-panel" id="alreadyArea">
     <div class="already-icon">📋</div>
     <div class="already-title">您已填寫過資料</div>
-    <div class="already-sub">以下為提交的內容</div>
+    <div class="already-sub">以下是您上次提交的內容<br>如需調整請聯繫官方 LINE</div>
     <div class="already-data" id="alreadyData"></div>
     <div class="already-contact">
       <strong>需要修改資料？</strong>
@@ -869,8 +907,8 @@
   <!-- Success area -->
   <div class="success-panel" id="successArea">
     <div class="success-icon">✅</div>
-    <div class="success-title">送出完成！</div>
-    <div class="success-sub">您的資料已成功送出</div>
+    <div class="success-title">綁定成功！</div>
+    <div class="success-sub">您的資料已成功送出<br>衡點健康團隊將盡快與您確認 💪</div>
     <div class="success-data" id="successData"></div>
   </div>
 </div>
@@ -1007,6 +1045,7 @@ function showAlreadyPanel(data) {
   const rows = [
     ['姓名',     data.name     || '—'],
     ['手機',     data.phone    || '—'],
+    ['生日',     data.birthday || '—'],
     ['LINE 暱稱', data.line_display_name || '—'],
   ];
 
@@ -1052,6 +1091,18 @@ function validateForm() {
 
   if (!phone || !/^09\d{2}-\d{3}-\d{3}$/.test(phone)) { showError('phone','phoneErr',true);  ok = false; }
   else                                       showError('phone','phoneErr',false);
+
+  // Birthday validation
+  const byYear  = document.getElementById('birthdayYear').value;
+  const byMonth = document.getElementById('birthdayMonth').value;
+  const byDay   = document.getElementById('birthdayDay').value;
+  const birthdayErr = document.getElementById('birthdayErr');
+  if (!byYear || !byMonth || !byDay) {
+    birthdayErr.classList.add('show');
+    ok = false;
+  } else {
+    birthdayErr.classList.remove('show');
+  }
 
   // Disease validation
   var checkedDiseases = document.querySelectorAll('input[name="disease"]:checked');
@@ -1196,6 +1247,9 @@ document.getElementById('btnConfirm').addEventListener('click', async () => {
     action:            'submit',
     name:              document.getElementById('name').value.trim(),
     phone:             formatPhone(rawPhone),
+    birthday:          (document.getElementById('birthdayYear').value && document.getElementById('birthdayMonth').value && document.getElementById('birthdayDay').value)
+                         ? document.getElementById('birthdayYear').value + '/' + document.getElementById('birthdayMonth').value + '/' + document.getElementById('birthdayDay').value
+                         : '',
     diseases:          diseasesPayload,
     line_user_id:      lineProfile.userId,
     line_display_name: lineProfile.displayName,
@@ -1204,7 +1258,12 @@ document.getElementById('btnConfirm').addEventListener('click', async () => {
     ref_name:          refName,
     source:            source,
     cid:               cid,
-    submitted_at:      new Date().toISOString(),
+    submitted_at:      new Date().toLocaleString('zh-TW', {
+      timeZone: 'Asia/Taipei',
+      year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit', second: '2-digit',
+      hour12: false
+    }).replace(/\//g, '/'),
   };
 
   console.log('📤 送出資料：', payload);
@@ -1249,6 +1308,43 @@ function showSuccess(data) {
     ).join('');
 }
 
+
+
+// ─── Birthday selects init ────────────────────────────────────────────────
+(function initBirthday() {
+  const yearSel  = document.getElementById('birthdayYear');
+  const monthSel = document.getElementById('birthdayMonth');
+  const daySel   = document.getElementById('birthdayDay');
+
+  const now = new Date().getFullYear();
+  for (let y = now; y >= now - 100; y--) {
+    const o = document.createElement('option');
+    o.value = y; o.textContent = y + ' 年';
+    yearSel.appendChild(o);
+  }
+  for (let m = 1; m <= 12; m++) {
+    const o = document.createElement('option');
+    o.value = String(m).padStart(2,'0'); o.textContent = m + ' 月';
+    monthSel.appendChild(o);
+  }
+
+  function updateDays() {
+    const y = parseInt(yearSel.value), m = parseInt(monthSel.value);
+    const prev = daySel.value;
+    daySel.innerHTML = '<option value="">日</option>';
+    if (!y || !m) return;
+    const days = new Date(y, m, 0).getDate();
+    for (let d = 1; d <= days; d++) {
+      const o = document.createElement('option');
+      o.value = String(d).padStart(2,'0'); o.textContent = d + ' 日';
+      daySel.appendChild(o);
+    }
+    if (prev) daySel.value = prev;
+  }
+
+  yearSel.addEventListener('change', updateDays);
+  monthSel.addEventListener('change', updateDays);
+})();
 
 // ─── Disease checkboxes ───────────────────────────────────────────────────
 (function initDiseases() {
