@@ -965,6 +965,58 @@
 // ─── 設定區 ────────────────────────────────────────────────────────────────
 const LIFF_ID      = '2008660081-1iUXNzEu';                        // ← 填入你的 LIFF ID
 const WEBHOOK_URL  = 'https://hook.us2.make.com/g9cnxw761cm8pit6iqxiggniuxb9ywb9'; // ← 填入 Make Webhook
+// ── member-api endpoint（Sprint 3 Phase 5 Wave 2，2026-05-12）──
+// 部署 hendia-member-service 後把 MEMBER_ZEABUR_URL 填上即可自動切換；
+// 緊急 rollback：DevTools console 執行 localStorage.setItem('FORCE_EDGE_MEMBER','1') 後重整頁面即可
+// 或在網址加上 ?force_edge=1
+const MEMBER_ZEABUR_URL = '';  // ← Zeabur 部署完填 'https://member-hendia.zeabur.app/'
+const MEMBER_EDGE_URL   = 'https://mnjilhpztnowaplggvkk.supabase.co/functions/v1/member-api';
+const MEMBER_EDGE_KEY   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1uamlsaHB6dG5vd2FwbGdndmtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU3MDA0ODYsImV4cCI6MjA4MTI3NjQ4Nn0.X3e9DF3iT2KUR9ma3_Ins01vG607R155v0xia8hO_Qg';
+
+function _resolveMemberEndpoint() {
+    let forceEdge = false;
+    try {
+        const u = new URLSearchParams(location.search);
+        if (u.get('force_edge') === '1') forceEdge = true;
+        if (!forceEdge && localStorage.getItem('FORCE_EDGE_MEMBER') === '1') forceEdge = true;
+    } catch (_) {}
+    if (!MEMBER_ZEABUR_URL) forceEdge = true;  // 還沒部署完就先打 Edge
+    if (forceEdge) {
+        return {
+            url: MEMBER_EDGE_URL,
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + MEMBER_EDGE_KEY,
+                'apikey': MEMBER_EDGE_KEY,
+            },
+            mode: 'edge',
+        };
+    }
+    return {
+        url: MEMBER_ZEABUR_URL,
+        headers: { 'Content-Type': 'application/json' },
+        mode: 'zeabur',
+    };
+}
+
+// Helper function to call member-api（Edge / Zeabur 自動切換 + killswitch）
+async function callEdge(action, params) {
+    const ep = _resolveMemberEndpoint();
+    try {
+        const response = await fetch(ep.url, {
+            method: 'POST',
+            headers: ep.headers,
+            body: JSON.stringify({ action, ...params })
+        });
+        if (!response.ok) {
+            console.warn(`[member-api ${ep.mode}] HTTP ${response.status} for action=${action}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error(`[member-api ${ep.mode}] ${action} failed:`, error);
+        throw error;
+    }
+}
 
 // ─── 1. Parse URL parameters ───────────────────────────────────────────────
 const params  = new URLSearchParams(window.location.search);
@@ -1037,22 +1089,7 @@ liff.init({ liffId: LIFF_ID })
 // ─── 檢查暫存表是否已有此 LINE ID ──────────────────────────────────────────
 async function checkExistingData(lineUserId) {
   try {
-    const res = await fetch(WEBHOOK_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'check', line_user_id: lineUserId }),
-    });
-    if (!res.ok) return;
-
-    // 安全解析，避免 Make 回傳非標準 JSON 時炸掉
-    const text = await res.text();
-    let result;
-    try {
-      result = JSON.parse(text);
-    } catch (e) {
-      console.warn('Make 回傳非 JSON，視為尚未填寫:', text);
-      return;
-    }
+    const result = await callEdge('checkExistingData', { line_user_id: lineUserId });
 
     if (result && result.found === true) {
       showAlreadyPanel(result);
